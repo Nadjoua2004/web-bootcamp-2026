@@ -25,14 +25,14 @@ function ProjectManagerApp() {
   else main = <PMSelectedProject project={selected}/>;
 
   return (
-    <div style={{display:"flex",gap:"0",minHeight:"360px",background:"#0a0a0a",borderRadius:"12px",overflow:"hidden",border:"1px solid #1a1a1a"}}>
+    <div className="pm-app">
       <PMSidebar
         projects={state.projects}
         selectedId={state.selectedId}
         onSelect={select}
         onAdd={startAdd}
       />
-      <div style={{flex:1,padding:"20px 32px",display:"flex",justifyContent:"center"}}>
+      <div className="pm-main">
         {main}
       </div>
     </div>

@@ -25,24 +25,39 @@ function App() {
   const handleHome = () => setActiveId(null);
   const handleSelect = (id) => setActiveId(id);
 
+  const [sideOpen, setSideOpen] = useState(false);
+
   // Sync session quiz state with admin toggle
   const sessionWithQuizState = activeSession ? {
     ...activeSession,
     quiz: { ...activeSession.quiz, enabled: quizStates[activeSession.id] }
   } : null;
 
+  const handleNavSelect = (id) => {
+    setActiveId(id);
+    setSideOpen(false);
+  };
+
+  const handleNavHome = () => {
+    setActiveId(null);
+    setSideOpen(false);
+  };
+
   return (
     <div className="app-shell">
+      {sideOpen && <div className="mob-overlay show" onClick={() => setSideOpen(false)} />}
       <Sidebar 
         activeId={activeId} 
-        onSelect={handleSelect} 
-        onHome={handleHome} 
-        onAdmin={() => setIsAdmin(true)}
+        onSelect={handleNavSelect} 
+        onHome={handleNavHome} 
+        onAdmin={() => { setIsAdmin(true); setSideOpen(false); }}
+        isOpen={sideOpen}
       />
       <main className="main-area">
         <Topbar 
           onAdmin={() => setIsAdmin(true)} 
           current={activeSession}
+          onMenuClick={() => setSideOpen(true)}
         />
         <div className="page-content">
           {activeId === null ? (

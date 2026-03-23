@@ -1,12 +1,15 @@
 import React from 'react';
 import Icon from './Icon';
 
-function Topbar({ current, onAdmin }) {
+function Topbar({ current, onAdmin, onMenuClick }) {
   return (
     <div className="topbar">
       <div className="topbar-left">
+        <button className="ham-btn" onClick={onMenuClick}>
+          <Icon name="Menu" size={20} />
+        </button>
         <div className="topbar-tag">Training</div>
-        {current && <Icon name="ChevronRight" size={14} color="#404040" />}
+        {current && <Icon name="ChevronRight" size={14} color="#404040" className="topbar-chevron" />}
         <div className="topbar-title">{current ? current.title : "MERN Stack Bootcamp"}</div>
       </div>
       <div className="topbar-right">

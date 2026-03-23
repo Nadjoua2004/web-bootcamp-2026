@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from './Icon';
 import { SESSIONS } from '../data/sessions';
 
-function Sidebar({ activeId, onSelect, onHome, onAdmin }) {
+function Sidebar({ activeId, onSelect, onHome, onAdmin, isOpen }) {
   const w1 = SESSIONS.filter(s => s.week === 1);
   const w2 = SESSIONS.filter(s => s.week === 2);
 
@@ -33,7 +33,7 @@ function Sidebar({ activeId, onSelect, onHome, onAdmin }) {
   );
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
       <div className="sidebar-top">
         <div className="brand-row">
           <div className="brand-dot" />

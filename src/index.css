@@ -439,20 +439,62 @@ body {
 .pm-mini-date { font-size: 11px; color: #525252; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
 .pm-mini-desc { font-size: 13px; color: #a3a3a3; line-height: 1.6; }
 
+/* ── PROJECT MANAGER DEMO ── */
+.pm-app { display: flex; min-height: 360px; background: #0a0a0a; border-radius: 12px; overflow: hidden; border: 1px solid #1a1a1a; }
+.pm-sidebar { width: 224px; flex-shrink: 0; background: #1c1917; padding: 40px 20px; border-right: 1px solid #292524; }
+.pm-main { flex: 1; padding: 20px 32px; display: flex; justify-content: center; overflow-y: auto; }
+
 /* ── RESPONSIVE ── */
 .mob-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); z-index: 99; }
 @media(max-width: 768px){
   .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); box-shadow: 12px 0 48px rgba(0, 0, 0, 0.8); width: 260px; }
-  .main-area { margin-left: 0; }
+  .sidebar.open { transform: translateX(0); box-shadow: 12px 0 48px rgba(0, 0, 0, 0.8); width: 260px; z-index: 100; }
+  .main-area { margin-left: 0; width: 100vw; overflow-x: hidden; }
   .ham-btn { display: flex; align-items: center; }
   .mob-overlay.show { display: block; }
   .page-content { padding: 32px 14px; }
   .topbar { padding: 14px 16px; }
+  .topbar-title, .topbar-chevron { display: none; }
   .home-wrap { padding: 48px 16px; }
   .home-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .weeks-grid { grid-template-columns: 1fr; }
   .home-h1 { font-size: 32px; }
   .day-hero { padding: 28px 24px; }
   .hero-h1 { font-size: 24px; }
+
+  /* PM Mini Responsiveness */
+  .pm-mini { flex-direction: column; height: auto; }
+  .pm-mini-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #1a1a1a; display: flex; overflow-x: auto; padding: 12px; gap: 8px; }
+  .pm-mini-sidebar h3 { margin-bottom: 0; display: flex; align-items: center; margin-right: 8px; }
+  .pm-mini-proj { flex-shrink: 0; margin-bottom: 0; white-space: nowrap; }
+  
+  /* Live Demo Responsiveness */
+  .pm-app { flex-direction: column; }
+  .pm-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #292524; padding: 20px; }
+  .pm-main { padding: 20px 16px; }
+}
+
+@media(max-width: 480px){
+  .home-stats { grid-template-columns: 1fr; }
+  .home-wrap { padding: 32px 14px; }
+  .home-h1 { font-size: 28px; }
+  
+  .day-hero { padding: 20px 16px; }
+  .hero-h1 { font-size: 20px; }
+  
+  .s-head { padding: 14px 16px; }
+  .s-body { padding: 4px 16px 20px; }
+  .c-hi, .c-warn { flex-direction: column; }
+  
+  .quiz-body { padding: 20px 16px; }
+  .quiz-stats-row { flex-direction: column; gap: 16px; align-items: center; }
+  .quiz-nav-row { flex-direction: column; gap: 16px; align-items: stretch; margin-top: 16px; }
+  .q-dots { justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .q-text { font-size: 15px; }
+  
+  .code-wrap { padding: 16px; margin: 16px 0; border-radius: 8px; }
+  .data-tbl { font-size: 12px; }
+  
+  .adm-modal { margin: 16px; width: auto; max-width: none; }
+  .adm-head, .adm-body { padding: 16px; }
 }

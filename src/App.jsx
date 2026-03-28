@@ -9,16 +9,47 @@ import { SESSIONS } from './data/sessions';
 function App() {
   const [activeId, setActiveId] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [quizStates, setQuizStates] = useState(() => {
-    const obj = {};
-    SESSIONS.forEach(s => obj[s.id] = s.quiz.enabled);
-    return obj;
-  });
+  const [quizStates, setQuizStates] = useState({});
+
+  // Fetch quiz states from backend
+  const fetchStates = async () => {
+    try {
+      const res = await fetch('/api/quiz-status');
+      if (res.ok) {
+        const data = await res.json();
+        setQuizStates(data);
+      }
+    } catch (err) {
+      console.error("Failed to sync quiz states:", err);
+    }
+  };
+
+  // Initial fetch and polling
+  useEffect(() => {
+    fetchStates();
+    const interval = setInterval(fetchStates, 10000); // Poll every 10s
+    return () => clearInterval(interval);
+  }, []);
 
   const activeSession = SESSIONS.find(s => s.id === activeId);
 
-  const toggleQuiz = (id) => {
-    setQuizStates(prev => ({ ...prev, [id]: !prev[id] }));
+  const toggleQuiz = async (id, password) => {
+    const nextState = !quizStates[id];
+    try {
+      const res = await fetch('/api/quiz-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, enabled: nextState, password })
+      });
+      if (res.ok) {
+        setQuizStates(prev => ({ ...prev, [id]: nextState }));
+      } else {
+        const err = await res.json();
+        alert(`Error: ${err.error || "Failed to toggle quiz"}`);
+      }
+    } catch (err) {
+      alert("Network error. Please try again.");
+    }
   };
 
   const handleStart = () => setActiveId(1);

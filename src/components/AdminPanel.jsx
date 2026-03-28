@@ -53,8 +53,8 @@ function AdminPanel({ quizStates, onToggle, onClose }) {
                   <label className="toggle-sw">
                     <input 
                       type="checkbox" 
-                      checked={quizStates[s.id]} 
-                      onChange={() => onToggle(s.id)} 
+                      checked={quizStates[s.id] || false} 
+                      onChange={() => onToggle(s.id, pw)} 
                     />
                     <span className="toggle-track"/>
                   </label>

@@ -35,6 +35,11 @@ function SectionCard({ section, defaultOpen }) {
                   <span>{s}</span>
                 </div>
               ))}
+              {section.content && section.content.length > 0 && (
+                <div style={{marginTop: "24px", animation: "fadeIn 0.4s ease"}}>
+                  {section.content.map((b,i) => <Block key={i} b={b}/>)}
+                </div>
+              )}
             </div>
           ) : (
             <div style={{animation: "fadeIn 0.4s ease"}}>

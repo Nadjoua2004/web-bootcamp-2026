@@ -30,6 +30,8 @@ function Block({ b }) {
         </table>
       </div>
     );
+    case "img": return <img src={b.url} alt={b.alt || ''} style={{maxWidth:"100%", borderRadius:"8px", margin:"12px 0", ...b.style}}/>;
+    case "html": return <div dangerouslySetInnerHTML={{__html: b.v}} />;
     default: return null;
   }
 }

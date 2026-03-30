@@ -14,14 +14,18 @@ export const SESSIONS = [
     ],
     sections:[
       {
-        type:"concept", title:"How React Works — The Virtual DOM",
+        type:"concept", title:"Introduction to Node & React",
         content:[
-          {t:"text", v:"React is a JavaScript library for building user interfaces. Before writing code, you need to understand the problem it solves. Browsers represent every HTML page as a tree of objects called the DOM. When you update a DOM node directly, the browser may recalculate styles, re-flow the layout, and repaint — doing unnecessary work for large pages."},
-          {t:"sub", v:"What is the Virtual DOM?"},
-          {t:"text", v:"React keeps a lightweight in-memory copy of the DOM called the Virtual DOM. When your application's data changes, React first updates this virtual copy, then compares (diffs) it with the previous version, and finally applies only the minimum number of real DOM operations needed. This process is called Reconciliation."},
-          {t:"hi", v:"Think of it like writing a draft document first. You make all your edits on the draft, compare with the original, then only update the specific paragraphs that changed — rather than reprinting the entire document."},
-          {t:"sub", v:"The Reconciliation Steps"},
-          {t:"steps", v:["State or props change inside a component","React creates a new Virtual DOM tree","React diffs the new tree against the previous one","React calculates the minimum DOM operations needed","React batches and applies those changes to the real DOM"]}
+          {t:"text", v:"Node.js is a JavaScript runtime built on Chrome's V8 engine. Before Node, JavaScript could only run inside browsers. Node allows JavaScript to run anywhere, enabling powerful tools like Vite and backend servers."},
+          {t:"sub", v:"What is React & Why use it?"},
+          {t:"text", v:"Created by Facebook (Meta) in 2013, React is a JavaScript library for building user interfaces. It revolutionized web development with its unique approach:"},
+          {t:"steps", v:["Declarative UI: Describe what the UI should look like for a given state, and React figures out how to update the DOM efficiently.","Component-Based: Build encapsulated components that manage their own state, then compose them into complex UIs.","State Management: React tracks 'state'—data that changes over time—and automatically re-renders components when state updates."]},
+          {t:"sub", v:"Trusted by Top Companies"},
+          {t:"html", v:"<div style='display:flex;gap:16px;align-items:center;margin:12px 0;opacity:0.8;font-weight:bold;font-size:18px;'><span><i class='fab fa-meta'></i> Meta</span><span><i class='fab fa-instagram'></i> Instagram</span><span><i class='fab fa-airbnb'></i> Airbnb</span><span>Netflix</span><span>Uber</span></div>"},
+          {t:"sub", v:"How it Works: Real DOM vs Virtual DOM"},
+          {t:"text", v:"The browser's Document Object Model (DOM) is a tree representation of the HTML page. Updating the Real DOM directly is slow because it causes layout recalculations and repaints."},
+          {t:"text", v:"React uses a lightweight, in-memory copy called the Virtual DOM. When state changes, React updates the Virtual DOM first, compares it to the previous version (Diffing), and applies only the necessary changes to the Real DOM (Reconciliation)."},
+          {t:"img", url:"/virtual_dom.png", alt:"Virtual DOM vs Real DOM Illustration"}
         ]
       },
       {
@@ -31,21 +35,24 @@ export const SESSIONS = [
           {t:"text", v:"Node.js is the JavaScript runtime that powers React's development tools and npm (Node Package Manager). Download the LTS version from nodejs.org."},
           {t:"code", lang:"bash", v:"node --version   # Should print v20.x.x\nnpm --version    # Should print 10.x.x"},
           {t:"sub", v:"Step 2 — Create a React Project with Vite"},
-          {t:"text", v:"Vite is the modern build tool that replaces Create React App. It starts in milliseconds and updates the browser instantly when you save a file (Hot Module Replacement)."},
+          {t:"text", v:"Vite (French for 'fast') is the modern build tool that replaces Create React App. Why Vite? Moreso than ever, speed matters:"},
+          {t:"steps", v:["Fast Server Start: Starts in milliseconds because it serves files instantly using native ES Modules.","HMR (Hot Module Replacement): Edits to your code update the browser instantly. The app's state is preserved without a full page reload!","No Bulky Bundling in Dev: It avoids bundling the entire application during development. Building is done only for production."]},
           {t:"code", lang:"bash", v:"npm create vite@latest project-manager -- --template react\ncd project-manager\nnpm install\nnpm run dev"},
-          {t:"hi", v:"Vite's dev server runs on http://localhost:5173. Every time you save a file, the browser reflects the change instantly — no full reload needed. This is called Hot Module Replacement (HMR)."},
+          {t:"hi", v:"Vite's dev server runs on http://localhost:5173. Every time you save a file, the browser reflects the change instantly."},
           {t:"sub", v:"Recommended Project Structure"},
-          {t:"code", lang:"text", v:"src/\n├── components/   ← reusable UI pieces\n├── pages/        ← full-page views (one per route)\n├── assets/       ← images, fonts\n├── styles/       ← CSS files\n├── App.jsx       ← root component\n└── main.jsx      ← entry point"}
+          {t:"text", v:"Vite scaffolds a modern project. You'll typically structure it strictly as follows:"},
+          {t:"code", lang:"text", v:"your-project/\n├── public/       ← static assets served unconditionally (e.g. logos, favicons, basic SVGs)\n├── src/\n│   ├── assets/       ← dynamic assets imported in code (images, fonts, global CSS)\n│   ├── components/   ← reusable generic UI pieces (buttons, inputs, cards)\n│   ├── pages/        ← full-page views associated with direct routes\n│   ├── styles/       ← CSS modules or global stylesheet configurations\n│   ├── App.jsx       ← root component containing layout & primary routing logic\n│   └── main.jsx      ← strict entry point that attaches React to index.html\n├── index.html    ← The single physical HTML file React injects into\n├── package.json  ← Lists dependencies and project scripts\n└── vite.config.js ← Configurations for Vite plugins and dev server proxy"}
         ]
       },
       {
         type:"concept", title:"JSX — JavaScript XML Syntax",
         content:[
-          {t:"text", v:"JSX is React's template syntax. It looks like HTML but compiles to JavaScript function calls. The key rules:"},
+          {t:"text", v:"JSX is a syntax extension for React. Under the hood, it compiles directly to plain JS objects using `React.createElement()`. We use JSX because writing bare JS objects to build UIs is extremely verbose and difficult to visually parse."},
           {t:"table", hdrs:["HTML","JSX"], rows:[["class=\"box\"","className=\"box\""],["for=\"email\"","htmlFor=\"email\""],["<img>","<img /> (always self-close)"],["style=\"color:red\"","style={{ color: 'red' }}"],["<!-- comment -->","{/* comment */}"]]},
           {t:"sub", v:"Embedding JavaScript Expressions"},
-          {t:"code", lang:"jsx", v:"const name = 'Alice';\nconst count = 5;\n\nfunction Greeting() {\n  return (\n    <div>\n      <h1>Hello, {name}!</h1>          {/* variable */}\n      <p>Tasks: {count * 2}</p>       {/* expression */}\n      <p>{count > 3 ? 'Many' : 'Few'}</p>  {/* ternary */}\n    </div>\n  );\n}"},
-          {t:"warn", v:"You cannot use if/else statements directly inside JSX. Use ternary operators (a ? b : c) or logical AND (condition && <Element />) for conditional logic inside the return statement."}
+          {t:"text", v:"You can embed ANY valid JavaScript expression inside JSX using curly braces `{}`. This brings the full power of JavaScript directly into your UI templating."},
+          {t:"code", lang:"jsx", v:"function DeliveryTracker() {\n  const courier = 'Alice';\n  const isDelivered = false;\n  const items = 5;\n\n  // Using an external function for calculations\n  const formatEstimate = (mins) => `${mins} minutes`;\n\n  return (\n    <div className=\"tracker-card\">\n      <h3>Courier: {courier.toUpperCase()}</h3>  {/* calling JS string methods */}\n      <p>Items: {items * 2}</p>       {/* expressions */}\n      \n      {/* conditional rendering via ternary operator */}\n      <span className={isDelivered ? 'badge-good' : 'badge-warn'}>\n        {isDelivered ? 'Delivered' : 'En Route'}\n      </span>\n\n      <p>ETA {formatEstimate(15)}</p> {/* calling a function */}\n    </div>\n  );\n}"},
+          {t:"warn", v:"You cannot use purely structural JS statements like `if/else`, `switch`, or `for` loops directly inside the JSX return block. Always use expressions: ternaries (`a ? b : c`) or logical AND (`condition && <Element />`) for logic inside JSX."}
         ]
       },
       {
@@ -59,9 +66,22 @@ export const SESSIONS = [
         ]
       },
       {
-        type:"coding", title:"Practical — Project Manager UI: Base Components",
-        goals:"Set up the Vite project and build the shell of the Project Manager application: a stone-themed sidebar, task cards, and a task list assembled in App.jsx.",
-        steps:["Run npm create vite@latest and open the project in VSCode","Create the folder structure: src/components/, src/pages/, src/styles/","Build Header.jsx — dark top bar with the app name","Build ProjectsSidebar.jsx — stone-900 aside with 'Your Projects' heading and an '+ Add' button","Build TaskCard.jsx — card displaying a title and status badge","Build TaskList.jsx — renders a list of TaskCard components","Assemble them in App.jsx with a flex layout"]
+        type:"coding", title:"Practical Lab — Project Manager UI: Base Components",
+        goals:"Set up the Vite project and build the shell of the Project Manager application featuring a sign-in screen and a home view. Practice composition without state.",
+        steps:[
+          "Run 'npm create vite@latest project-manager -- --template react', navigate inside, run 'npm install'.",
+          "Create 'src/components/' folder. Add 'SignInPage.jsx' and 'HomePage.jsx'.",
+          "Copy the layout code for 'SignInPage' below. Note how it uses inline Tailwind-like classes.",
+          "Assemble 'SignInPage' initially inside 'src/App.jsx' to see it."
+        ],
+        content:[
+           {t:"sub", v:"SignInPage Component Code"},
+           {t:"code", lang:"jsx", v:"// src/components/SignInPage.jsx\nexport default function SignInPage({ onSignIn }) {\n  return (\n    <div className=\"flex items-center justify-center min-h-screen bg-stone-950 text-stone-200 p-4\">\n      <div className=\"bg-stone-900 border border-stone-800 rounded-xl p-8 max-w-sm w-full shadow-lg\">\n        <h2 className=\"text-2xl font-semibold mb-6 text-center\">Sign In to PM</h2>\n        <div className=\"flex flex-col gap-4\">\n          <input \n            type=\"email\" \n            placeholder=\"Email\" \n            className=\"w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500\"\n          />\n          <input \n            type=\"password\" \n            placeholder=\"Password\" \n            className=\"w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500\"\n          />\n          <button \n            onClick={onSignIn}\n            className=\"w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition-colors\"\n          >\n            Continue to App\n          </button>\n        </div>\n      </div>\n    </div>\n  );\n}"},
+           {t:"sub", v:"HomePage Component Code"},
+           {t:"code", lang:"jsx", v:"// src/components/HomePage.jsx\nexport default function HomePage() {\n  return (\n    <div className=\"min-h-screen bg-stone-950 text-stone-200 flex flex-col\">\n      <header className=\"border-b border-stone-800 bg-stone-900 p-4\">\n        <h1 className=\"text-xl font-bold\">Project Manager</h1>\n      </header>\n      <main className=\"flex-1 p-8 flex items-center justify-center\">\n        <div className=\"text-center\">\n           <h2 className=\"text-3xl font-semibold mb-2\">Welcome Home</h2>\n           <p className=\"text-stone-400\">Your dashboard goes here.</p>\n        </div>\n      </main>\n    </div>\n  );\n}"},
+           {t:"sub", v:"Attaching Components in App.jsx"},
+           {t:"text", v:"Once created, import these into `App.jsx`. Since we aren't using state yet (that's Day 2!), simply render one component manually to view it. Or, use a fake conditional if you feel adventurous. For now, replace App's contents with `<SignInPage />` to test the UI."}
+        ]
       }
     ],
     quiz:{

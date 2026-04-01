@@ -165,56 +165,74 @@ export const SESSIONS = [
   /* ── W1 D3 ── */
   {
     id:3, week:1, type:"onsite", slug:"w1d3", icon: "Route",
-    title:"Advanced React & Routing", duration:"5–6 Hours", tag:"Week 1 · Day 3",
-    topics:["useEffect — side effects and data fetching","Conditional rendering & loading states","Lists and keys — rendering arrays","React Router — install, routes, layout routes"],
+    title:"Refs, State Routing & Advanced React", duration:"5–6 Hours", tag:"Week 1 · Day 3",
+    topics:[
+      "useEffect — side effects and data fetching",
+      "useRef & forwardRef — accessing DOM elements natively",
+      "State-based routing vs React Router",
+      "Building the Project Management forms"
+    ],
     sections:[
+      {
+        type:"concept", title:"useRef & forwardRef",
+        content:[
+          {t:"text", v:"While useState is great for values that trigger re-renders, sometimes you need to store values that SHOULDN'T trigger re-renders, or directly access DOM elements like an input field. This is where useRef comes in."},
+          {t:"code", lang:"jsx", v:"import { useRef } from 'react';\n\nfunction TextInput() {\n  const inputEl = useRef(null);\n  const onButtonClick = () => { inputEl.current.focus(); };\n  return (\n    <>\n      <input ref={inputEl} type=\"text\" />\n      <button onClick={onButtonClick}>Focus the input</button>\n    </>\n  );\n}"},
+          {t:"warn", v:"Updating `ref.current` does NOT trigger a re-render. Only use refs for reading values or direct DOM manipulation, not for values that affect the visual output."},
+          {t:"text", v:"When you create a custom component and want it to receive a ref from its parent, you cannot just use a `ref` prop normally. You must wrap your component in `forwardRef`."},
+          {t:"code", lang:"jsx", v:"import { forwardRef } from 'react';\n\nconst Input = forwardRef(function Input({ label, ...props }, ref) {\n  return (\n    <>\n      <label>{label}</label>\n      <input ref={ref} {...props} />\n    </>\n  );\n});\nexport default Input;"}
+        ]
+      },
+      {
+        type:"concept", title:"State-Based Routing vs React Router",
+        content:[
+          {t:"text", v:"In a Single Page Application (SPA), routing is the process of deciding what is visible on the screen. We can achieve basic routing purely using React state by conditionally rendering components. We use this in our App.jsx to switch between the 'No Project Selected', 'New Project', and 'Selected Project' views."},
+          {t:"code", lang:"jsx", v:"// State-based routing example from our App.jsx:\nlet content = <SelectedProject project={selectedProject} />;\nif(projectsState.selectedProjectId === null){\n  content= <NewProject onAdd={handleAddProject} />\n} else if (projectsState.selectedProjectId === undefined){\n  content= <NoProjectSelected />\n}\n\nreturn <main>{content}</main>;"},
+          {t:"text", v:"This approach works well for simple apps, but it doesn't change the URL. Because the URL never changes, users can't bookmark specific pages or use the back button. As an app grows, we use external libraries like React Router to map a URL (e.g., `localhost:5173/projects/new`) to a specific component natively."}
+        ]
+      },
       {
         type:"concept", title:"useEffect — Side Effects",
         content:[
-          {t:"text", v:"React components are pure functions — same input, same output. But real apps need to reach outside: fetch data from APIs, set timers, update the page title. These are called side effects. useEffect is the hook for running them safely after the component renders."},
-          {t:"code", lang:"jsx", v:"import { useState, useEffect } from 'react';\n\nfunction TaskList() {\n  const [tasks, setTasks]   = useState([]);\n  const [loading, setLoading] = useState(true);\n\n  useEffect(() => {\n    fetch('https://api.example.com/tasks')\n      .then(res => res.json())\n      .then(data => { setTasks(data); setLoading(false); });\n  }, []);  // [] = run once when component mounts\n\n  if (loading) return <p>Loading...</p>;\n  return <ul>{tasks.map(t => <li key={t.id}>{t.title}</li>)}</ul>;\n}"},
-          {t:"table", hdrs:["Syntax","When it runs"], rows:[["useEffect(fn)","After EVERY render (rarely useful)"],["useEffect(fn, [])","Once on mount — use for initial data fetching"],["useEffect(fn, [id])","On mount AND whenever 'id' changes"]]},
-          {t:"warn", v:"Never omit the dependency array if your effect updates state — this creates an infinite loop: state changes → effect runs → state changes → ..."}
+          {t:"text", v:"React components are pure functions. To reach outside (APIs, timers, manual DOM manipulation), we use useEffect."},
+          {t:"code", lang:"jsx", v:"useEffect(() => {\n  fetch('https://api.example.com/data').then(res => res.json()).then(console.log);\n}, []); // Empty array = run only on mount"},
+          {t:"warn", v:"If you omit the dependency array, your effect runs on EVERY render, potentially causing infinite loops if state is updated inside."}
         ]
       },
       {
-        type:"concept", title:"Conditional Rendering & Lists",
+        type:"coding", title:"Practical Lab — Project Manager UI Modules",
+        goals:"Handle new projects and the 'no project selected' state using conditional rendering, and implement reusable form inputs using forwardRef.",
+        steps:[
+          "Create 'Input.jsx' using forwardRef to allow parent components to read its value.",
+          "Create 'NewProject.jsx' using useRef to capture form data and validate inputs, showing a Modal if invalid.",
+          "Create 'NoProjectSelected.jsx' layout with the empty project image.",
+          "Update 'App.jsx' to wire up state so that changing 'selectedProjectId' conditionally renders the correct module."
+        ],
         content:[
-          {t:"sub", v:"Three conditional rendering patterns"},
-          {t:"code", lang:"jsx", v:"// 1. Ternary — choose between two options\n{isLoggedIn ? <Dashboard /> : <Login />}\n\n// 2. Logical AND — only render when true\n{error && <p className=\"error\">{error}</p>}\n\n// 3. Early return — cleanest for loading/error states\nif (loading) return <Spinner />;\nif (error)   return <ErrorPage message={error} />;\nreturn <MainContent />;"},
-          {t:"sub", v:"Rendering Lists with .map()"},
-          {t:"code", lang:"jsx", v:"const projects = [\n  { id: 1, title: 'E-Commerce App' },\n  { id: 2, title: 'Portfolio Site' },\n];\n\nfunction ProjectList() {\n  return (\n    <ul>\n      {projects.map(p => (\n        <li key={p.id}>{p.title}</li>  // key is REQUIRED\n      ))}\n    </ul>\n  );\n}"},
-          {t:"warn", v:"Always use a stable, unique id as the key — never the array index. If items reorder or are deleted, using index as key causes React to render elements incorrectly."}
+           {t:"sub", v:"Input Component Code (src/components/Input.jsx)"},
+           {t:"code", lang:"jsx", v:"import { forwardRef } from \"react\";\n\nconst Input = forwardRef (function Input ({textarea,label, ...props},ref){\n   const classes= 'w-full p-1 border-b-2 rounded-sm border-stone-300 bg-stone-200 text-stone-600 focus:outline-none focus:border-stone-600';\n    return(\n <p className=\"flex flex-col gap-1 my-4\"  >\n    <label className=\"text-sm font-bold uppercase text-stone-500\">\n        {label}\n    </label>\n   { textarea ? \n   <textarea ref={ref} className={classes} {...props}/>\n    : <input ref={ref} className={classes} {...props}/>}\n </p>\n    );\n});\nexport default Input;"},
+           {t:"sub", v:"NewProject Component Code (src/components/NewProject.jsx)"},
+           {t:"code", lang:"jsx", v:"import { useRef } from \"react\";\nimport Input from \"./Input\";\nimport Modal from \"./Modal\";\nexport default function NewProject({onAdd, onCancel}){\n    const modal = useRef();\n   const title= useRef();\n   const description= useRef();\n   const duedate =  useRef();\nfunction handleSave (){\nconst entredTitle = title.current.value;\nconst entredDescription = description.current.value;\nconst entredDueDate = duedate.current.value;\n if (\n    entredTitle.trim() === '' ||\n    entredDescription.trim() === '' ||\n    entredDueDate.trim() === '' ) {\n   modal.current.open();\n   return; \n    }\n \nonAdd({\n    title: entredTitle,\n    description: entredDescription,\n    duedate :  entredDueDate \n})\n}\n\n    return (\n  <>\n        <Modal ref={modal} buttonCaption=\"Okay\">\n        <h2 className='text-xl font-bold text-stone-700 my-4'>\n            Invalid Input\n        </h2>\n            <p className='text-stone-600 mb-4'>Oops ... looks like you forget to enter  a value</p>\n            <p className='text-stone-600 mb-4'>Please make sure you provide a valid value for every input field</p>\n            </Modal>\n    <div className=\"w-[35rem] mt-16\">\n   <menu className=\"flex items-center justify-end gap-4 my-4\">\n    <li>\n        <button className=\"text-stone-800 hover:text-stone-950\" onClick={onCancel}>\n            Cancel\n            </button>\n    </li>\n    <li>\n        <button \n        className=\"px-6 py-2 rounded-md bg-stone-800 text-stone-50 hover:bg-stone-900\"\n           onClick={handleSave}>\n            Save\n            </button>\n       \n        </li>\n   </menu>\n   <div>\n   <Input type=\"text\" ref={title} label=\"  Title\"/>\n   <Input ref={description} label=\"Description\" textarea={true}/>\n   <Input type=\"date\" ref={duedate} label=\"Due Date\"/>\n   </div>\n\n   </div>\n </>\n    );\n}"},
+           {t:"sub", v:"NoProjectSelected Component Code (src/components/NoProjectSelected.jsx)"},
+           {t:"code", lang:"jsx", v:"import noProjectImage from '../assets/no-projects.png';\nimport Button from './Button.jsx';\nexport default function NoProjectSelected ({onStartAddProject}){\n    return(\n    <div className='mt-24 text-center w-2/3'>\n        <img src={noProjectImage} alt='tasklist empty'\n        className='w-16 h-16 object-contain mx-auto'\n        />\n        <h2 className='text-xl font-bold text-stone-500 my-4'>\n            No Project Selected</h2>\n        <p className='text-stone-400 mb-4'>Select a project or get started with a new one</p>\n        <p className='mt-8'>\n            <Button onClick={onStartAddProject}>Create new project</Button>\n        </p>\n    </div>\n    );\n}"},
+           {t:"sub", v:"App Component Code (src/App.jsx)"},
+           {t:"code", lang:"jsx", v:"import { useState } from \"react\";\nimport NewProject from \"./components/NewProject\";\nimport NoProjectSelected from \"./components/NoProjectSelected\";\nimport ProjectsSidebar from \"./components/ProjectsSidebar\";\nimport SelectedProject from \"./components/SelectedProject\";\n\nfunction App() {\n  const[projectsState,setProjectsState]= useState({\n    selectedProjectId: undefined,\n    projects:[],\n  });\n  function handleStartAddProject(){\n    setProjectsState(prevState => {\n      return {\n        ...prevState,\n        selectedProjectId: null,\n      };\n    })\n  }\n  \n function handleSelectedProject(id) {\n  setProjectsState(prevState => {\n    return {\n      ...prevState,\n      selectedProjectId: id,\n    };\n  })\n }\n\n function handleCancelAddProjecrt(){\n  setProjectsState(prevState => {\n    return {\n      ...prevState,\n      selectedProjectId: undefined,\n    };\n  })\n }\n\n function handleAddProject(projectData){\n  setProjectsState(prevState => {\n    const newProject ={\n     ...projectData,\n     id: Math.random()\n    };\n\n    return {\n      ...prevState,\n      selectedProjectId:undefined,\n      projects: [...prevState.projects,newProject]\n    };\n  });\n }\n  \n  console.log(projectsState) \n\n  const selectedProject = projectsState.projects.find(project => project.id === projectsState.selectedProjectId)\n\n  let content = <SelectedProject project={selectedProject} />;\n  if(projectsState.selectedProjectId === null){\n    content= <NewProject onAdd={handleAddProject} onCancel={ handleCancelAddProjecrt}/>\n  }\n  else if (projectsState.selectedProjectId === undefined){\n    content=  <NoProjectSelected onStartAddProject={handleStartAddProject}/>\n  }\n\n  return (\n    <main className=\" h-screen my-8 flex gap-8\">\n    <ProjectsSidebar\n     onStartAddProject={handleStartAddProject}\n     projects={projectsState.projects}\n     onSelectProject={handleSelectedProject}\n     />\n   {content}\n    </main>\n  );\n}\n\nexport default App;"}
         ]
-      },
-      {
-        type:"concept", title:"React Router — Navigation",
-        content:[
-          {t:"text", v:"React apps are Single Page Applications — the browser loads one HTML file and React swaps content dynamically as the URL changes. React Router is the library that maps URL paths to components."},
-          {t:"code", lang:"bash", v:"npm install react-router-dom"},
-          {t:"code", lang:"jsx", v:"// main.jsx — wrap the app\nimport { BrowserRouter } from 'react-router-dom';\nReactDOM.createRoot(document.getElementById('root')).render(\n  <BrowserRouter><App /></BrowserRouter>\n);\n\n// App.jsx — define routes\nimport { Routes, Route } from 'react-router-dom';\nfunction App() {\n  return (\n    <Routes>\n      <Route path=\"/\"        element={<Home />} />\n      <Route path=\"/tasks\"   element={<Tasks />} />\n      <Route path=\"/tasks/:id\" element={<TaskDetail />} />\n    </Routes>\n  );\n}\n\n// Navigation — always use <Link>, never <a href>\nimport { Link } from 'react-router-dom';\n<Link to=\"/tasks\">View Tasks</Link>"},
-          {t:"warn", v:"Never use <a href> for navigation inside a React app. It causes a full browser reload and destroys all React state. Always use <Link to> from react-router-dom."}
-        ]
-      },
-      {
-        type:"coding", title:"Practical — Project Manager: Routing & API Structure",
-        goals:"Add React Router to the Project Manager, create Home and Tasks pages, and refactor the code structure to be ready for backend API integration in Week 2.",
-        steps:["Install react-router-dom and wrap App in BrowserRouter inside main.jsx","Create src/pages/Home.jsx and src/pages/Tasks.jsx","Define routes in App.jsx for '/' and '/tasks'","Update ProjectsSidebar to use <Link> for navigation instead of state","Move task fetching logic into a useEffect inside Tasks.jsx","Create src/api/tasks.js with an async fetchTasks() function returning mock data","Add loading and error states to the Tasks page — show a spinner or message"]
       }
     ],
     quiz:{
       enabled:true,
       questions:[
-        {id:"3a",text:"A 'side effect' in React refers to:",opts:["An error from a bad component","Interaction outside rendering — API calls, timers, DOM","A CSS style that overrides another","A component rendered inside another"],correct:1,pts:10},
-        {id:"3b",text:"useEffect with [] (empty dependency array) runs:",opts:["After every render","Never","Once when the component mounts","When the component unmounts"],correct:2,pts:10},
-        {id:"3c",text:"React Router maps:",opts:["CSS classes to components","URL paths to React components","State to DOM elements","API responses to state"],correct:1,pts:10},
-        {id:"3d",text:"Why should you never use <a href> for React navigation?",opts:["It's deprecated","It causes a full page reload, losing all React state","It only works in old browsers","React Router blocks it"],correct:1,pts:10},
-        {id:"3e",text:"Using array index as a key in .map() is bad because:",opts:["Indexes aren't valid JS","On reorder/delete React may render items incorrectly","React requires string keys","Indexes mutate state"],correct:1,pts:10},
-        {id:"3f",text:"The useNavigate() hook is used for:",opts:["Reading the current URL","Programmatic navigation (e.g. redirect after form submit)","Fetching data","Accessing URL parameters"],correct:1,pts:10},
-        {id:"3g",text:"{isLoggedIn && <Dashboard />} when isLoggedIn is false renders:",opts:["<Dashboard />","null — nothing","An error","The string 'false'"],correct:1,pts:10},
-        {id:"3h",text:"A React SPA (Single Page Application) means:",opts:["Only one component","One HTML file — React swaps content without full reloads","Only one visible page at a time","No backend needed"],correct:1,pts:10},
-        {id:"3i",text:"Which hook do you use for programmatic navigation in React Router?",opts:["useHistory","useLocation","useNavigate","useRedirect"],correct:2,pts:10},
-        {id:"3j",text:"Where should useEffect for initial data fetching be placed?",opts:["Inside the return statement","Before the component function","Inside the component with []","Inside an onClick handler"],correct:2,pts:10}
+        {id:"3a",text:"What is the defining characteristic of `useRef` compared to `useState`?",opts:["It causes the entire React component tree to remount on every update","It creates a mutable reference object whose `.current` property modifications DO NOT trigger a component re-render","It forces React to evaluate the DOM synchronously after an update","It acts as a substitute for `useEffect` in modern React versions"],correct:1,pts:10},
+        {id:"3b",text:"When passing a ref down to a custom component, what React utility must wrap the child component function?",opts:["React.memo()","createContext()","forwardRef()","useImperativeHandle()"],correct:2,pts:10},
+        {id:"3c",text:"How does state-based pseudo-routing (like `content = <NewProject />`) fundamentally differ from using React Router?",opts:["State-based routing is physically impossible to implement in React 18 without experimental flags","State-based routing prevents CSS transitions from functioning","State-based routing does NOT update the browser's URL, breaking back-button functionality and direct linking","React Router prevents the use of context API in routed children"],correct:2,pts:10},
+        {id:"3d",text:"Why must `id: Math.random()` in our local state update NEVER be used in a production system connected to a database?",opts:["Because databases exclusively support base64 UUIDs","Because it causes a security vulnerability by exposing the browser signature","Because Math.random() is computationally expensive and freezes the main thread","Because it doesn't guarantee absolute uniqueness and doesn't align with the backend's primary keys"],correct:3,pts:10},
+        {id:"3e",text:"Which is the correct way to read the actual text typed into an input retrieved via a `ref` named `titleRef`?",opts:["titleRef.value()","titleRef.current.value","titleRef.get().innerHTML","titleRef.current.innerText()"],correct:1,pts:10},
+        {id:"3f",text:"Why would you use `useRef` to read inputs instead of a controlled `useState` input?",opts:["To enforce a higher degree of state immutability in Redux","To bypass React Router validation checks","To read the value ONLY when needed (e.g., on form submit), thereby avoiding a re-render on every single keystroke","To create a two-way data binding similar to Angular"],correct:2,pts:10},
+        {id:"3g",text:"If `ref.current` is mutated during rendering inside the component body itself, what React principle is being violated?",opts:["The Unidirectional Data Flow Principle","The Component Purity Principle, as rendering must be a pure function without side-effects","The Virtual DOM reconciliation heuristic","The Hooks Rule of Order"],correct:1,pts:10},
+        {id:"3h",text:"In the provided state-based routing logic, what determines which view is injected into the `<main>` structural tag?",opts:["The history stack maintained by `react-router-dom`","The `selectedProjectId`, via standard conditional statements inside the render cycle","A higher order component wrapping `<App/>`","A global context evaluating `document.location` natively"],correct:1,pts:10},
+        {id:"3i",text:"What does the `...prevState` spread operator ensure when calling `setProjectsState`?",opts:["It clones all existing sub-properties (like the `.projects` array) so they aren't lost when updating just `selectedProjectId`","It deep copies nested dependencies automatically","It halts any current memory leaks in the browser","It signals to React that the previous state was invalid and must be discarded"],correct:0,pts:10},
+        {id:"3j",text:"Where should a `useEffect` designed to fetch initial project data on application startup be instantiated in terms of dependencies?",opts:["`useEffect(fn)` (no array)","`useEffect(fn, [data])`","`useEffect(fn, [])` (empty array)","`useEffect(fn, [window.location])`"],correct:2,pts:10}
       ]
     }
   },

@@ -169,6 +169,8 @@ export const SESSIONS = [
     topics:[
       "useEffect — side effects and data fetching",
       "useRef & forwardRef — accessing DOM elements natively",
+      "Conditional rendering & loading states",
+      "Lists and keys — rendering arrays",
       "State-based routing vs React Router",
       "Building the Project Management forms"
     ],
@@ -181,6 +183,16 @@ export const SESSIONS = [
           {t:"warn", v:"Updating `ref.current` does NOT trigger a re-render. Only use refs for reading values or direct DOM manipulation, not for values that affect the visual output."},
           {t:"text", v:"When you create a custom component and want it to receive a ref from its parent, you cannot just use a `ref` prop normally. You must wrap your component in `forwardRef`."},
           {t:"code", lang:"jsx", v:"import { forwardRef } from 'react';\n\nconst Input = forwardRef(function Input({ label, ...props }, ref) {\n  return (\n    <>\n      <label>{label}</label>\n      <input ref={ref} {...props} />\n    </>\n  );\n});\nexport default Input;"}
+        ]
+      },
+      {
+        type:"concept", title:"Conditional Rendering & Lists",
+        content:[
+          {t:"sub", v:"Three conditional rendering patterns"},
+          {t:"code", lang:"jsx", v:"// 1. Ternary — choose between two options\n{isLoggedIn ? <Dashboard /> : <Login />}\n\n// 2. Logical AND — only render when true\n{error && <p className=\"error\">{error}</p>}\n\n// 3. Early return — cleanest for loading/error states\nif (loading) return <Spinner />;\nif (error)   return <ErrorPage message={error} />;\nreturn <MainContent />;"},
+          {t:"sub", v:"Rendering Lists with .map()"},
+          {t:"code", lang:"jsx", v:"const projects = [\n  { id: 1, title: 'E-Commerce App' },\n  { id: 2, title: 'Portfolio Site' },\n];\n\nfunction ProjectList() {\n  return (\n    <ul>\n      {projects.map(p => (\n        <li key={p.id}>{p.title}</li>  // key is REQUIRED\n      ))}\n    </ul>\n  );\n}"},
+          {t:"warn", v:"Always use a stable, unique id as the key — never the array index. If items reorder or are deleted, using index as key causes React to render elements incorrectly."}
         ]
       },
       {

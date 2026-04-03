@@ -295,7 +295,7 @@ export const SESSIONS = [
   {
     id:5, week:1, type:"online", slug:"w1o2", icon: "Box",
     title:"Code Review & Architecture", duration:"3 Hours", tag:"Week 1 · Online 2",
-    topics:["Component libraries: shadcn/ui, MUI, Chakra","localStorage — client-side persistence","useContext — sharing state globally"],
+    topics:["Component libraries: shadcn/ui, MUI, Chakra","localStorage — client-side persistence","Redux Toolkit — global state management"],
     sections:[
       {
         type:"concept", title:"Component Libraries",
@@ -315,10 +315,13 @@ export const SESSIONS = [
         ]
       },
       {
-        type:"concept", title:"useContext — Global State",
+        type:"concept", title:"Redux Toolkit — Global State Management",
         content:[
-          {t:"text", v:"Passing props through many layers ('prop drilling') gets messy in large apps. useContext creates a global store that any component in the tree can read from directly."},
-          {t:"code", lang:"jsx", v:"// context/AuthContext.jsx\nimport { createContext, useContext, useState } from 'react';\n\nconst AuthContext = createContext(null);\n\nexport function AuthProvider({ children }) {\n  const [user, setUser] = useState(null);\n\n  function login(userData) {\n    setUser(userData);\n    localStorage.setItem('token', userData.token);\n  }\n  function logout() {\n    setUser(null);\n    localStorage.removeItem('token');\n  }\n\n  return (\n    <AuthContext.Provider value={{ user, login, logout }}>\n      {children}\n    </AuthContext.Provider>\n  );\n}\n\n// Custom hook for easy access\nexport function useAuth() {\n  return useContext(AuthContext);\n}\n\n// Any component can now access auth:\nconst { user, logout } = useAuth();"}
+          {t:"text", v:"Passing props through many layers ('prop drilling') gets messy in large apps. Redux Toolkit (RTK) solves this by creating a centralized global store for your entire application's state, making it predictable and easy to manage."},
+          {t:"code", lang:"jsx", v:"// 1. Create a Slice (features/counterSlice.js)\nimport { createSlice } from '@reduxjs/toolkit';\n\nexport const counterSlice = createSlice({\n  name: 'counter',\n  initialState: { value: 0 },\n  reducers: {\n    increment: state => { state.value += 1; },\n    decrement: state => { state.value -= 1; }\n  }\n});\nexport const { increment, decrement } = counterSlice.actions;\nexport default counterSlice.reducer;"},
+          {t:"code", lang:"jsx", v:"// 2. Configure Store (store.js)\nimport { configureStore } from '@reduxjs/toolkit';\nimport counterReducer from './features/counterSlice';\n\nexport const store = configureStore({\n  reducer: { counter: counterReducer }\n});"},
+          {t:"warn", v:"Don't forget to wrap your root component in main.jsx with the <Provider store={store}> from 'react-redux'."},
+          {t:"code", lang:"jsx", v:"// 3. Use in Components\nimport { useSelector, useDispatch } from 'react-redux';\nimport { increment } from './features/counterSlice';\n\nfunction Counter() {\n  const count = useSelector(state => state.counter.value);\n  const dispatch = useDispatch();\n  return <button onClick={() => dispatch(increment())}>Count: {count}</button>;\n}"}
         ]
       }
     ],
@@ -326,7 +329,7 @@ export const SESSIONS = [
       enabled:false,
       questions:[
         {id:"5a",text:"localStorage data:",opts:["Is cleared when React state resets","Persists across browser sessions and page reloads","Is shared between all browser tabs automatically","Expires after 24 hours by default"],correct:1,pts:34},
-        {id:"5b",text:"useContext solves the problem of:",opts:["Slow re-renders","Prop drilling — passing data through many component layers","API request failures","CSS specificity conflicts"],correct:1,pts:33},
+        {id:"5b",text:"Which two hooks are primarily used to interact with a Redux store in React components?",opts:["useState and useEffect","useContext and useReducer","useSelector and useDispatch","useMemo and useCallback"],correct:2,pts:33},
         {id:"5c",text:"shadcn/ui is popular because:",opts:["It is the oldest UI library","It provides copy-paste components built on Tailwind that are easy to customise","It replaces React entirely","It only works with Next.js"],correct:1,pts:33}
       ]
     }

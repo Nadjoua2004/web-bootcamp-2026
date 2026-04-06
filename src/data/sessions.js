@@ -370,7 +370,17 @@ export const SESSIONS = [
       {
         type:"coding", title:"Practical — Project Manager API: Express Setup",
         goals:"Initialise the Express backend, create the MVC folder structure, add the first project routes, and test them in Postman.",
-        steps:["Run npm init -y and install express, cors, dotenv, nodemon","Create server.js with the setup above and start it with npm run dev","Create folders: controllers/, routes/, models/, middleware/","Create routes/projectRoutes.js — define GET / and POST / routes","Create controllers/projectController.js — write getProjects and createProject functions","Register the router in server.js: app.use('/api/projects', projectRoutes)","Open Postman and test GET /api/projects and POST /api/projects"]
+        steps:["Run npm init -y and install express, cors, dotenv, nodemon","Create server.js with the setup above and start it with npm run dev","Create folders: controllers/, routes/, models/, middleware/","Create routes/projectRoutes.js — define GET / and POST / routes","Create controllers/projectController.js — write getProjects and createProject functions","Register the router in server.js: app.use('/api/projects', projectRoutes)","Open Postman and test GET /api/projects and POST /api/projects"],
+        content:[
+           {t:"sub", v:"Step 1: Install Dependencies & Setup"},
+           {t:"code", lang:"bash", v:"mkdir pm-api && cd pm-api\nnpm init -y\nnpm install express cors dotenv\nnpm install --save-dev nodemon"},
+           {t:"sub", v:"Step 2: Basic Express Server (server.js)"},
+           {t:"code", lang:"js", v:"const express = require('express');\nconst cors = require('cors');\nrequire('dotenv').config();\n\nconst app = express();\napp.use(cors());\napp.use(express.json());\n\napp.get('/', (req, res) => res.json({ message: 'API Running' }));\n\nconst PORT = process.env.PORT || 5000;\napp.listen(PORT, () => console.log(`Server on port ${PORT}`));"},
+           {t:"sub", v:"Step 3: Define Routes (routes/projectRoutes.js)"},
+           {t:"code", lang:"js", v:"const express = require('express');\nconst router = express.Router();\nconst { getProjects, createProject } = require('../controllers/projectController');\n\nrouter.get('/', getProjects);\nrouter.post('/', createProject);\n\nmodule.exports = router;"},
+           {t:"sub", v:"Step 4: Logic (controllers/projectController.js)"},
+           {t:"code", lang:"js", v:"// Temporary array until we add MongoDB tomorrow!\nlet projects = [];\n\nexports.getProjects = (req, res) => {\n  res.json(projects);\n};\n\nexports.createProject = (req, res) => {\n  const newProject = { id: Date.now(), ...req.body };\n  projects.push(newProject);\n  res.status(201).json(newProject);\n};"}
+        ]
       }
     ],
     quiz:{
@@ -429,7 +439,19 @@ export const SESSIONS = [
       {
         type:"coding", title:"Practical — Project Manager API: MongoDB & CRUD",
         goals:"Connect MongoDB Atlas, define schemas for User, Project, and Task, then implement all four CRUD endpoints and test them in Postman.",
-        steps:["npm install mongoose — connect to Atlas in server.js","Create models/User.js, models/Project.js, models/Task.js with proper schemas","Update projectController.js to use the Project model with async/await","Implement GET /api/projects, POST /api/projects, PUT /api/projects/:id, DELETE /api/projects/:id","Add try/catch to every controller function","Test all four endpoints in Postman — try valid and invalid data","Verify documents appear and update in MongoDB Atlas Data Explorer"]
+        steps:["npm install mongoose — connect to Atlas in server.js","Create models/User.js, models/Project.js, models/Task.js with proper schemas","Update projectController.js to use the Project model with async/await","Implement GET /api/projects, POST /api/projects, PUT /api/projects/:id, DELETE /api/projects/:id","Add try/catch to every controller function","Test all four endpoints in Postman — try valid and invalid data","Verify documents appear and update in MongoDB Atlas Data Explorer"],
+        content:[
+           {t:"sub", v:"Step 1: Install Mongoose & Connect"},
+           {t:"code", lang:"bash", v:"npm install mongoose"},
+           {t:"text", v:"Update server.js to include the database connection logic using your MONGO_URI from .env."},
+           {t:"code", lang:"js", v:"const mongoose = require('mongoose');\n\nmongoose.connect(process.env.MONGO_URI)\n  .then(() => console.log('MongoDB Connected'))\n  .catch(err => console.error('Connection error:', err));"},
+           {t:"sub", v:"Step 2: Define Project Model (models/Project.js)"},
+           {t:"code", lang:"js", v:"const mongoose = require('mongoose');\n\nconst projectSchema = new mongoose.Schema({\n  title: { type: String, required: true },\n  description: { type: String, required: true },\n  duedate: { type: String, required: true },\n  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }\n}, { timestamps: true });\n\nmodule.exports = mongoose.model('Project', projectSchema);"},
+           {t:"sub", v:"Step 3: Refactor Controller to use MongoDB"},
+           {t:"code", lang:"js", v:"const Project = require('../models/Project');\n\nexports.getProjects = async (req, res) => {\n  try {\n    const projects = await Project.find({ owner: req.user.id }); // will use auth later\n    res.json(projects);\n  } catch (err) { res.status(500).json({ error: err.message }); }\n};\n\nexports.createProject = async (req, res) => {\n  try {\n    const project = await Project.create(req.body);\n    res.status(201).json(project);\n  } catch (err) { res.status(400).json({ error: err.message }); }\n};"},
+           {t:"sub", v:"Step 4: Complete CRUD (Update & Delete)"},
+           {t:"code", lang:"js", v:"exports.updateProject = async (req, res) => {\n  const project = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true });\n  res.json(project);\n};\n\nexports.deleteProject = async (req, res) => {\n  await Project.findByIdAndDelete(req.params.id);\n  res.json({ message: 'Project removed' });\n};"}
+        ]
       }
     ],
     quiz:{
@@ -481,7 +503,17 @@ export const SESSIONS = [
       {
         type:"coding", title:"Practical — Full MERN Integration",
         goals:"Implement JWT authentication on the backend and connect the React frontend to the live Express API. Every feature of the Project Manager should work end-to-end.",
-        steps:["npm install bcryptjs jsonwebtoken","Create routes/authRoutes.js with /register and /login endpoints","Implement register: hash password → create user → return JWT","Implement login: find user → bcrypt.compare → return JWT","Build middleware/authMiddleware.js protect function","Add protect middleware to all /api/projects routes","In React: build Login.jsx and Register.jsx pages with controlled forms","On login success save token to localStorage","Update all React fetch calls to include the Authorization header","Test the full flow: register → login → create project → view projects → logout"]
+        steps:["npm install bcryptjs jsonwebtoken","Create routes/authRoutes.js with /register and /login endpoints","Implement register: hash password → create user → return JWT","Implement login: find user → bcrypt.compare → return JWT","Build middleware/authMiddleware.js protect function","Add protect middleware to all /api/projects routes","In React: build Login.jsx and Register.jsx pages with controlled forms","On login success save token to localStorage","Update all React fetch calls to include the Authorization header","Test the full flow: register → login → create project → view projects → logout"],
+        content:[
+           {t:"sub", v:"Step 1: Auth Middleware (middleware/authMiddleware.js)"},
+           {t:"code", lang:"js", v:"const jwt = require('jsonwebtoken');\n\nmodule.exports = (req, res, next) => {\n  const token = req.headers.authorization?.split(' ')[1];\n  if (!token) return res.status(401).json({ message: 'Unauthorized' });\n\n  try {\n    const decoded = jwt.verify(token, process.env.JWT_SECRET);\n    req.user = decoded;\n    next();\n  } catch (err) {\n    res.status(401).json({ message: 'Token invalid' });\n  }\n};"},
+           {t:"sub", v:"Step 2: User Model (models/User.js)"},
+           {t:"code", lang:"js", v:"const mongoose = require('mongoose');\nconst bcrypt = require('bcryptjs');\n\nconst userSchema = new mongoose.Schema({\n  name: { type: String, required: true },\n  email: { type: String, required: true, unique: true },\n  password: { type: String, required: true }\n});\n\nmodule.exports = mongoose.model('User', userSchema);"},
+           {t:"sub", v:"Step 3: Registration & Login Logic"},
+           {t:"code", lang:"js", v:"const User = require('../models/User');\nconst jwt = require('jsonwebtoken');\nconst bcrypt = require('bcryptjs');\n\nexports.register = async (req, res) => {\n  const { name, email, password } = req.body;\n  const hashedPassword = await bcrypt.hash(password, 10);\n  const user = await User.create({ name, email, password: hashedPassword });\n  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);\n  res.json({ token, user: { name, email } });\n};\n\nexports.login = async (req, res) => {\n  const { email, password } = req.body;\n  const user = await User.findOne({ email });\n  if (user && await bcrypt.compare(password, user.password)) {\n    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);\n    res.json({ token, user: { name: user.name, email } });\n  } else {\n    res.status(401).json({ message: 'Invalid credentials' });\n  }\n};"},
+           {t:"sub", v:"Step 4: Protect Project Routes"},
+           {t:"code", lang:"js", v:"// routes/projectRoutes.js\nconst auth = require('../middleware/authMiddleware');\nrouter.get('/', auth, getProjects);\nrouter.post('/', auth, createProject);"}
+        ]
       }
     ],
     quiz:{
